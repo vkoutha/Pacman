@@ -13,9 +13,11 @@ public class Pacman {
 
 	private Directions direction;
 	private int row, column;
+	private boolean spriteOpen;
 
 	public Pacman() {
 		direction = Directions.STILL;
+	//	initSpriteTimer();
 	}
 
 	private void initSpriteTimer() {
@@ -23,7 +25,7 @@ public class Pacman {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-
+				spriteOpen = !spriteOpen;
 			}
 		}).start();
 	}
@@ -53,8 +55,13 @@ public class Pacman {
 
 	public void render(Graphics g) {
 		g.setColor(Color.YELLOW);
-		g.fillOval(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, 
-				GameData.TILE_WIDTH, GameData.TILE_HEIGHT);
+		if (!spriteOpen) {
+			g.fillOval(column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH,
+					GameData.TILE_HEIGHT);
+		}else {
+			g.drawImage(GameData.PACMAN_SPRITE, column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT, GameData.TILE_WIDTH,
+					GameData.TILE_HEIGHT, null);
+		}
 	}
 
 }

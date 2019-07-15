@@ -17,13 +17,14 @@ import javax.swing.Timer;
 
 import game.GameData.Directions;
 
-public class Game implements ActionListener, KeyListener, MouseListener{
+public class Game implements ActionListener, KeyListener, MouseListener {
 
 	public static Game game;
 	private JFrame frame;
 	private Renderer renderer;
 	private Barrier barrier;
 	private Pacman pacman;
+	private Tile[][] tiles;
 	private ArrayList<Food> food;
 	private Timer timer;
 
@@ -47,16 +48,24 @@ public class Game implements ActionListener, KeyListener, MouseListener{
 	}
 
 	public void initGame() {
+		tiles = new Tile[GameData.GRID_ROWS][GameData.GRID_COLUMNS];
+		for (int row = 0; row < tiles.length; row++) {
+			for (int col = 0; col < tiles[row].length; col++) {
+				tiles[row][col] = new Tile(row, col);
+			}
+		} 
+		barrier = new Barrier(tiles);
 		food = new ArrayList<Food>();
-		for(int row = 0; row < GameData.GRID_ROWS; row++) {
-			for(int col = 0; col < GameData.GRID_COLUMNS; col++) {
-				food.add(new Food(row, col));
+		for (int row = 0; row < GameData.GRID_ROWS; row++) {
+			for (int col = 0; col < GameData.GRID_COLUMNS; col++) {
+				if (!tiles[row][col].isBarrierTile()) {
+					food.add(new Food(row, col));
+				}
 			}
 		}
-		barrier = new Barrier();
 		pacman = new Pacman();
 		timer = new Timer(GameData.RENDERER_UPDATE_SPEED_MS, this);
-		timer.start(); 
+		timer.start();
 	}
 
 	public void render(Graphics g) {
@@ -85,13 +94,13 @@ public class Game implements ActionListener, KeyListener, MouseListener{
 	@Override
 	public void keyTyped(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void keyPressed(KeyEvent e) {
 		// TODO Auto-generated method stub
-		switch(e.getKeyCode()) {
+		switch (e.getKeyCode()) {
 		case KeyEvent.VK_W:
 		case KeyEvent.VK_UP:
 			pacman.setDirection(Directions.UP);
@@ -114,13 +123,13 @@ public class Game implements ActionListener, KeyListener, MouseListener{
 	@Override
 	public void keyReleased(KeyEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseClicked(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -128,25 +137,29 @@ public class Game implements ActionListener, KeyListener, MouseListener{
 		// TODO Auto-generated method stub
 		int row = e.getY() / GameData.TILE_HEIGHT;
 		int col = e.getX() / GameData.TILE_WIDTH;
-		System.out.println("[" + row + ", " + col + "]" );
+		System.out.println("[" + row + ", " + col + "]");
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
-		
+
+	}
+
+	public Tile[][] getTiles() {
+		return tiles;
 	}
 
 }
