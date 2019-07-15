@@ -7,6 +7,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
@@ -15,7 +17,7 @@ import javax.swing.Timer;
 
 import game.GameData.Directions;
 
-public class Game implements ActionListener, KeyListener{
+public class Game implements ActionListener, KeyListener, MouseListener{
 
 	public static Game game;
 	private JFrame frame;
@@ -37,6 +39,7 @@ public class Game implements ActionListener, KeyListener{
 		renderer.setBackground(Color.BLACK);
 		frame.add(renderer);
 		frame.addKeyListener(this);
+		frame.getContentPane().addMouseListener(this);
 		frame.pack();
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
@@ -57,7 +60,7 @@ public class Game implements ActionListener, KeyListener{
 	}
 
 	public void render(Graphics g) {
-		food.forEach((f) -> f.render(g));
+		food.forEach((food) -> food.render(g));
 		barrier.render(g);
 		pacman.render(g);
 	}
@@ -110,6 +113,38 @@ public class Game implements ActionListener, KeyListener{
 
 	@Override
 	public void keyReleased(KeyEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		// TODO Auto-generated method stub
+		int row = e.getY() / GameData.TILE_HEIGHT;
+		int col = e.getX() / GameData.TILE_WIDTH;
+		System.out.println("[" + row + ", " + col + "]" );
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
 		
 	}
