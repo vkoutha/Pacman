@@ -20,6 +20,7 @@ public class Game implements ActionListener, KeyListener{
 	public static Game game;
 	private JFrame frame;
 	private Renderer renderer;
+	private Barrier barrier;
 	private Pacman pacman;
 	private ArrayList<Food> food;
 	private Timer timer;
@@ -49,6 +50,7 @@ public class Game implements ActionListener, KeyListener{
 				food.add(new Food(row, col));
 			}
 		}
+		barrier = new Barrier();
 		pacman = new Pacman();
 		timer = new Timer(GameData.RENDERER_UPDATE_SPEED_MS, this);
 		timer.start(); 
@@ -56,6 +58,7 @@ public class Game implements ActionListener, KeyListener{
 
 	public void render(Graphics g) {
 		food.forEach((f) -> f.render(g));
+		barrier.render(g);
 		pacman.render(g);
 	}
 
