@@ -67,6 +67,9 @@ public class Barrier {
 			xPoints[i] *= GameData.TILE_WIDTH;
 			yPoints[i] *= GameData.TILE_HEIGHT;
 		}
+//		g.setColor(Color.BLACK);
+//		g.fillPolygon(xPoints, yPoints, xPoints.length);
+		g.setColor(Color.BLUE);
 		g.drawPolygon(xPoints, yPoints, xPoints.length);
 	}
 
