@@ -27,6 +27,8 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	private Tile[][] tiles;
 	private ArrayList<Food> food;
 	private Timer timer;
+	static ArrayList<int[]> clickedPoints;
+	private int score = 0;
 
 	public Game() {
 		initFrame();
@@ -45,6 +47,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		frame.setVisible(true);
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		clickedPoints = new ArrayList<int[]>();
 	}
 
 	public void initGame() {
@@ -53,7 +56,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 			for (int col = 0; col < tiles[row].length; col++) {
 				tiles[row][col] = new Tile(row, col);
 			}
-		} 
+		}
 		barrier = new Barrier(tiles);
 		food = new ArrayList<Food>();
 		for (int row = 0; row < GameData.GRID_ROWS; row++) {
@@ -82,6 +85,14 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 				game = new Game();
 			}
 		});
+		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				System.out.println("\n\n\n\n\n\n\n\n");
+				clickedPoints.forEach((point) -> System.out.println("{" + point[0] + ", " + point[1] + "},"));
+			}
+		}));
 	}
 
 	@Override
@@ -137,7 +148,8 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		// TODO Auto-generated method stub
 		int row = e.getY() / GameData.TILE_HEIGHT;
 		int col = e.getX() / GameData.TILE_WIDTH;
-		System.out.println("[" + row + ", " + col + "]");
+		System.out.println("{" + row + ", " + col + "}");
+		clickedPoints.add(new int[] { row, col });
 	}
 
 	@Override
@@ -156,6 +168,14 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	public void mouseExited(MouseEvent e) {
 		// TODO Auto-generated method stub
 
+	}
+	
+	public int getScore() {
+		return score;
+	}
+	
+	public ArrayList<Food> getFood(){
+		return food;
 	}
 
 	public Tile[][] getTiles() {
