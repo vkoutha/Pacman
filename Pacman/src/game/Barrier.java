@@ -43,6 +43,8 @@ public class Barrier {
 		barrierPoints.add(convertToXAndY(14, 4, 16, 7, false));
 		barrierPoints.add(convertToXAndY(14, 18, 16, 21, false));
 		barrierPoints.add(convertToXAndY(14, 22, 16, 25, false));
+		barrierPoints.add(convertToXAndY(15, 11, 16, 14, false));
+		barrierPoints.add(convertToXAndY(23, 11, 24, 14, false));
 		setBarrierTiles();
 		setBarrierPolygonTiles();
 		manualBarrierTileSelection();
@@ -65,6 +67,15 @@ public class Barrier {
 		polygonBarrierPoints.add(new int[][] { { 6, 7, 7, 10, 10, 7, 7, 6 }, { 8, 8, 12, 12, 13, 13, 17, 17 } });
 		polygonBarrierPoints.add(new int[][] { { 6, 6, 8, 8, 10, 10, 13, 13 }, { 6, 7, 7, 11, 11, 7, 7, 6 } });
 		polygonBarrierPoints.add(new int[][] { { 6, 8, 8, 10, 10, 13, 13, 6 }, { 18, 18, 14, 14, 18, 18, 19, 19 } });
+
+		polygonBarrierPoints.add(new int[][] { { 15, 15, 17, 17, 19, 19 }, { 8, 10, 10, 12, 12, 8 } });
+
+		polygonBarrierPoints.add(new int[][] { { 20, 20, 24, 24, 22, 22 }, { 12, 8, 8, 10, 10, 12 } });
+
+		polygonBarrierPoints.add(new int[][] { { 15, 15, 17, 17, 19, 19 }, { 17, 15, 15, 13, 13, 17 } });
+
+		polygonBarrierPoints.add(new int[][] { { 20, 20, 24, 24, 22, 22 }, { 13, 17, 17, 15, 15, 13 } });
+
 		polygonBarrierPoints.forEach((coord) -> {
 			for (int i = 0; i < coord[0].length; i++) {
 				coord[0][i] *= GameData.TILE_HEIGHT;
@@ -81,6 +92,14 @@ public class Barrier {
 				{ 9, 9 }, { 9, 8 }, { 9, 7 }, { 9, 6 }, { 10, 6 }, { 11, 6 }, { 12, 6 }, });
 		barriers.add(new int[][] { { 6, 18 }, { 7, 18 }, { 8, 18 }, { 9, 18 }, { 10, 18 }, { 11, 18 }, { 12, 18 },
 				{ 9, 17 }, { 8, 17 }, { 8, 16 }, { 9, 16 }, { 9, 15 }, { 8, 15 }, { 8, 14 }, { 9, 14 }, });
+		barriers.add(new int[][] { { 15, 8 }, { 15, 9 }, { 16, 9 }, { 16, 8 }, { 17, 8 }, { 17, 9 }, { 17, 10 },
+				{ 17, 11 }, { 18, 11 }, { 18, 10 }, { 18, 9 }, { 18, 8 }, });
+		barriers.add(new int[][] { { 20, 8 }, { 20, 9 }, { 20, 10 }, { 20, 11 }, { 21, 11 }, { 21, 10 }, { 21, 9 },
+				{ 21, 8 }, { 22, 8 }, { 22, 9 }, { 23, 9 }, { 23, 8 }, });
+		barriers.add(new int[][] { { 15, 15 }, { 15, 16 }, { 16, 16 }, { 16, 15 }, { 17, 16 }, { 17, 15 }, { 17, 14 },
+				{ 17, 13 }, { 18, 13 }, { 18, 14 }, { 18, 15 }, { 18, 16 }, });
+		barriers.add(new int[][] { { 20, 13 }, { 20, 14 }, { 20, 15 }, { 20, 16 }, { 21, 16 }, { 21, 15 }, { 21, 14 },
+				{ 21, 13 }, { 22, 15 }, { 22, 16 }, { 23, 16 }, { 23, 15 }, });
 		barriers.forEach((polygonBarrier) -> {
 			for (int i = 0; i < polygonBarrier.length; i++) {
 				tiles[polygonBarrier[i][0]][polygonBarrier[i][1]].setAsBarrierTile(true);
