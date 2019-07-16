@@ -45,6 +45,12 @@ public class Barrier {
 		barrierPoints.add(convertToXAndY(14, 22, 16, 25, false));
 		barrierPoints.add(convertToXAndY(15, 11, 16, 14, false));
 		barrierPoints.add(convertToXAndY(23, 11, 24, 14, false));
+		barrierPoints.add(convertToXAndY(17, 1, 18, 7, false));
+		barrierPoints.add(convertToXAndY(17, 18, 18, 24, false));
+		barrierPoints.add(convertToXAndY(19, 18, 24, 20, false));
+		barrierPoints.add(convertToXAndY(19, 5, 24, 7, false));
+		barrierPoints.add(convertToXAndY(19, 1, 24, 4, false));
+		barrierPoints.add(convertToXAndY(19, 21, 24, 24, false));
 		setBarrierTiles();
 		setBarrierPolygonTiles();
 		manualBarrierTileSelection();

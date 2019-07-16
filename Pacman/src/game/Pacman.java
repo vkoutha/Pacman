@@ -59,7 +59,6 @@ public class Pacman {
 	}
 
 	public void setDirection(Directions direction) {
-		System.out.println(row + 1 + "\t" + Game.game.getTiles()[row + 1][column].isBarrierTile());
 		switch (direction) {
 		case UP:
 			if (row - 1 < 0 || Game.game.getTiles()[row - 1][column].isBarrierTile())
