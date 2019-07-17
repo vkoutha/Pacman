@@ -32,6 +32,34 @@ public class Pacman {
 		}).start();
 	}
 
+
+	private boolean atIntersection() {
+		switch(direction) {
+		case DOWN:
+		case UP:
+			if(column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
+				return true;
+			}
+			if(column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+				return true;
+			}
+			break;
+		case LEFT:
+		case RIGHT:
+			if(row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
+				return true;
+			}
+			if(row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+				return true;
+			}
+			break;
+		case STILL:
+			return true;
+		}
+		return false;
+	}
+
+	
 	public void move() {
 		switch (direction) {
 		case UP:
@@ -88,6 +116,14 @@ public class Pacman {
 		}
 		this.direction = direction;
 		System.out.println("Direction set to: " + direction);
+	}
+	
+	public int getRow() {
+		return row;
+	}
+	
+	public int getColumn() {
+		return column;
 	}
 
 	public void render(Graphics g) {

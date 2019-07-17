@@ -24,6 +24,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	private Renderer renderer;
 	private Barrier barrier;
 	private Pacman pacman;
+	private ArrayList<Ghost> ghosts;
 	private Tile[][] tiles;
 	private ArrayList<Food> food;
 	private Timer timer;
@@ -32,7 +33,6 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	public Game() {
 		initFrame();
-		initGame();
 	}
 
 	public void initFrame() {
@@ -67,14 +67,26 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 			}
 		}
 		pacman = new Pacman();
+		initGhosts();
 		timer = new Timer(GameData.RENDERER_UPDATE_SPEED_MS, this);
 		timer.start();
+	}
+	
+	private void initGhosts() {
+		ghosts = new ArrayList<Ghost>();
+		ghosts.add(new Ghost(11, 11, Color.BLUE));
+		ghosts.add(new Ghost(11, 12, Color.RED));
+		ghosts.add(new Ghost(11, 13, Color.WHITE));
+		ghosts.add(new Ghost(12, 11, Color.ORANGE));
+		ghosts.add(new Ghost(12, 12, Color.PINK));
+		ghosts.add(new Ghost(12, 13, Color.GREEN));
 	}
 
 	public void render(Graphics g) {
 		food.forEach((food) -> food.render(g));
 		barrier.render(g);
 		pacman.render(g);
+		ghosts.forEach((ghost) -> ghost.render(g));
 	}
 
 	public static void main(String[] args) {
@@ -83,6 +95,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 			public void run() {
 				// TODO Auto-generated method stub
 				game = new Game();
+				game.initGame();
 			}
 		});
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {
@@ -100,6 +113,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		// TODO Auto-generated method stub
 		renderer.repaint();
 		pacman.move();
+		ghosts.forEach((ghost) -> ghost.move());
 	}
 
 	@Override
@@ -176,6 +190,10 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	
 	public int getScore() {
 		return score;
+	}
+	
+	public Pacman getPacman() {
+		return pacman;
 	}
 	
 	public ArrayList<Food> getFood(){
