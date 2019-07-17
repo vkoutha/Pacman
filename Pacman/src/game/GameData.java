@@ -8,7 +8,7 @@ public class GameData {
 
 	public static final int FRAME_WIDTH = 806;
 	public static final int FRAME_HEIGHT = 806;
-	public static final int RENDERER_UPDATE_SPEED_MS = 80;
+	public static final int RENDERER_UPDATE_SPEED_MS = 100;
 	public static final int SPRITE_UPDATE_SPEED_MS = 12;
 	public static final int GRID_ROWS = 25;
 	public static final int GRID_COLUMNS = 25;

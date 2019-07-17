@@ -10,12 +10,13 @@ public class Ghost {
 
 	private int row, column;
 	private Color color;
-	private Directions direction;
+	private Directions direction, prevDirection;
 
 	public Ghost(int row, int column, Color color) {
 		this.row = row;
 		this.column = column;
 		this.color = color;
+		prevDirection = Directions.STILL;
 		direction = Directions.UP;
 		for (int i = 0; i < Game.game.getFood().size(); i++) {
 			if (Game.game.getFood().get(i).getRow() == row && Game.game.getFood().get(i).getColumn() == column) {
@@ -50,6 +51,7 @@ public class Ghost {
 			break;
 		}
 		if (atIntersection()) {
+			prevDirection = direction;
 			switchIntersections();
 		}
 	}
@@ -83,7 +85,12 @@ public class Ghost {
 				lowestIndex = i;
 			}
 		}
-		direction = availableDirections.get(lowestIndex);
+		double chance = Math.random() * 100;
+		if(chance <= 30) {
+			direction = availableDirections.get(lowestIndex);
+		}else {
+			direction = availableDirections.get(getRandomNum(availableDirections.size(), -1));
+		}
 	}
 	
 	private ArrayList<Directions> getAvailableDirections() {
@@ -91,16 +98,30 @@ public class Ghost {
 		if(row - 1 > 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
 			availableDirections.add(Directions.UP);
 		}
-		if(row + 1 > 0 && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+		if(row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
 			availableDirections.add(Directions.DOWN);
 		}
 		if(column - 1 > 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
 			availableDirections.add(Directions.LEFT);
 		}
-		if(column + 1 > 0 && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+		if(column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
 			availableDirections.add(Directions.RIGHT);
 		}
+		for(int i = 0; i < availableDirections.size(); i++) {
+			if(availableDirections.get(i) == prevDirection) {
+				availableDirections.remove(i);
+			}
+		}
 		return availableDirections;
+	}
+	
+	private int getRandomNum(int size, int indexToExclude) {
+		int randomNum = -69;
+		do {
+			System.out.println(size);
+			randomNum = (int) Math.random() * size;
+		}while (randomNum == indexToExclude);
+		 return randomNum;
 	}
 	
 	private double getDistanceToPlayer(int row, int column) {
