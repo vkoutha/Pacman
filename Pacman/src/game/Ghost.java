@@ -11,11 +11,16 @@ public class Ghost {
 	private Color color;
 	private Directions direction;
 
-	public Ghost(Color color) {
-		row = GameData.GRID_ROWS / 2;
-		column = GameData.GRID_COLUMNS / 2;
+	public Ghost(int row, int column, Color color) {
+		this.row = row;
+		this.column = column;
 		this.color = color;
-		direction = Directions.UP;
+		direction = Directions.STILL;
+		for(int i = 0; i < Game.game.getFood().size(); i++) {
+			if(Game.game.getFood().get(i).getRow() == row && Game.game.getFood().get(i).getColumn() == column) {
+				Game.game.getFood().get(i).consume();
+			}
+		}
 	}
 
 	public void move() {

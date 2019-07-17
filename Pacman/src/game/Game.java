@@ -33,7 +33,6 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	public Game() {
 		initFrame();
-		initGame();
 	}
 
 	public void initFrame() {
@@ -75,11 +74,12 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	
 	private void initGhosts() {
 		ghosts = new ArrayList<Ghost>();
-		ghosts.add(new Ghost(Color.BLUE));
-		ghosts.add(new Ghost(Color.RED));
-		ghosts.add(new Ghost(Color.WHITE));
-		ghosts.add(new Ghost(Color.ORANGE));
-		ghosts.add(new Ghost(Color.PINK));
+		ghosts.add(new Ghost(11, 11, Color.BLUE));
+		ghosts.add(new Ghost(11, 12, Color.RED));
+		ghosts.add(new Ghost(11, 13, Color.WHITE));
+		ghosts.add(new Ghost(12, 11, Color.ORANGE));
+		ghosts.add(new Ghost(12, 12, Color.PINK));
+		ghosts.add(new Ghost(12, 13, Color.GREEN));
 	}
 
 	public void render(Graphics g) {
@@ -95,6 +95,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 			public void run() {
 				// TODO Auto-generated method stub
 				game = new Game();
+				game.initGame();
 			}
 		});
 		Runtime.getRuntime().addShutdownHook(new Thread(new Runnable() {

@@ -10,6 +10,7 @@ public class Barrier {
 
 	private ArrayList<int[]> barrierPoints;
 	private ArrayList<int[][]> polygonBarrierPoints;
+	private int[][] spawnBoxPoints;
 	private Tile[][] tiles;
 
 	public Barrier(Tile[][] tiles) {
@@ -21,7 +22,22 @@ public class Barrier {
 
 	// Index 0 = xStart, Index 1 0 = yStart, Index 2 = xEnd, Index 3 = yEnd
 	public void initBarriers() {
-		barrierPoints.add(convertToXAndY(GameData.GRID_ROWS / 2 - 1, GameData.GRID_COLUMNS / 2 - 4, 3, 9, true));
+		setSpawnBox();
+		setRectangularBarriers();
+		setBarrierBlockedTiles();
+		setBarrierPolygonTiles();
+		manualBarrierBlockedTileSelection();
+	}
+
+	public void setSpawnBox() {
+		spawnBoxPoints = new int[][] { { 11, 11, 14, 14, 11, 11 }, { 11, 8, 8, 17, 17, 14 } };
+		for (int i = 0; i < spawnBoxPoints[0].length; i++) {
+			spawnBoxPoints[0][i] *= GameData.TILE_HEIGHT;
+			spawnBoxPoints[1][i] *= GameData.TILE_WIDTH;
+		}
+	}
+
+	public void setRectangularBarriers() {
 		barrierPoints.add(convertToXAndY(1, 1, 2, 3, true));
 		barrierPoints.add(convertToXAndY(1, 5, 2, 4, true));
 		barrierPoints.add(convertToXAndY(1, 10, 4, 1, true));
@@ -51,12 +67,9 @@ public class Barrier {
 		barrierPoints.add(convertToXAndY(19, 5, 24, 7, false));
 		barrierPoints.add(convertToXAndY(19, 1, 24, 4, false));
 		barrierPoints.add(convertToXAndY(19, 21, 24, 24, false));
-		setBarrierTiles();
-		setBarrierPolygonTiles();
-		manualBarrierTileSelection();
 	}
 
-	public void setBarrierTiles() {
+	public void setBarrierBlockedTiles() {
 		for (int i = 0; i < barrierPoints.size(); i++) {
 			int[] rowColCoords = { barrierPoints.get(i)[1] / GameData.TILE_HEIGHT,
 					barrierPoints.get(i)[3] / GameData.TILE_HEIGHT, barrierPoints.get(i)[0] / GameData.TILE_WIDTH,
@@ -73,15 +86,11 @@ public class Barrier {
 		polygonBarrierPoints.add(new int[][] { { 6, 7, 7, 10, 10, 7, 7, 6 }, { 8, 8, 12, 12, 13, 13, 17, 17 } });
 		polygonBarrierPoints.add(new int[][] { { 6, 6, 8, 8, 10, 10, 13, 13 }, { 6, 7, 7, 11, 11, 7, 7, 6 } });
 		polygonBarrierPoints.add(new int[][] { { 6, 8, 8, 10, 10, 13, 13, 6 }, { 18, 18, 14, 14, 18, 18, 19, 19 } });
-
 		polygonBarrierPoints.add(new int[][] { { 15, 15, 17, 17, 19, 19 }, { 8, 10, 10, 12, 12, 8 } });
-
 		polygonBarrierPoints.add(new int[][] { { 20, 20, 24, 24, 22, 22 }, { 12, 8, 8, 10, 10, 12 } });
-
 		polygonBarrierPoints.add(new int[][] { { 15, 15, 17, 17, 19, 19 }, { 17, 15, 15, 13, 13, 17 } });
-
 		polygonBarrierPoints.add(new int[][] { { 20, 20, 24, 24, 22, 22 }, { 13, 17, 17, 15, 15, 13 } });
-
+		polygonBarrierPoints.add(new int[][] { { 20, 20, 24, 24, 22, 22 }, { 13, 17, 17, 15, 15, 13 } });
 		polygonBarrierPoints.forEach((coord) -> {
 			for (int i = 0; i < coord[0].length; i++) {
 				coord[0][i] *= GameData.TILE_HEIGHT;
@@ -90,7 +99,7 @@ public class Barrier {
 		});
 	}
 
-	private void manualBarrierTileSelection() {
+	private void manualBarrierBlockedTileSelection() {
 		ArrayList<int[][]> barriers = new ArrayList<int[][]>();
 		barriers.add(new int[][] { { 6, 8 }, { 6, 9 }, { 6, 10 }, { 6, 11 }, { 6, 12 }, { 6, 13 }, { 6, 14 }, { 6, 15 },
 				{ 6, 16 }, { 7, 12 }, { 8, 12 }, { 9, 12 } });
@@ -106,6 +115,9 @@ public class Barrier {
 				{ 17, 13 }, { 18, 13 }, { 18, 14 }, { 18, 15 }, { 18, 16 }, });
 		barriers.add(new int[][] { { 20, 13 }, { 20, 14 }, { 20, 15 }, { 20, 16 }, { 21, 16 }, { 21, 15 }, { 21, 14 },
 				{ 21, 13 }, { 22, 15 }, { 22, 16 }, { 23, 16 }, { 23, 15 }, });
+		barriers.add(new int[][] { { 11, 8 }, { 11, 9 }, { 11, 10 }, { 12, 10 }, { 12, 9 }, { 12, 8 }, { 13, 8 },
+				{ 13, 9 }, { 13, 10 }, { 13, 14 }, { 13, 15 }, { 13, 16 }, { 12, 16 }, { 12, 15 }, { 12, 14 },
+				{ 11, 14 }, { 11, 15 }, { 11, 16 }, { 13, 11 }, { 13, 12 }, { 13, 13 }});
 		barriers.forEach((polygonBarrier) -> {
 			for (int i = 0; i < polygonBarrier.length; i++) {
 				tiles[polygonBarrier[i][0]][polygonBarrier[i][1]].setAsBarrierTile(true);
@@ -130,6 +142,10 @@ public class Barrier {
 		barrierPoints.forEach((barrier) -> g2.drawRoundRect(barrier[0], barrier[1], barrier[2], barrier[3],
 				GameData.BARRIER_ROUNDNESS, GameData.BARRIER_ROUNDNESS));
 		polygonBarrierPoints.forEach((coord) -> g2.drawPolygon(coord[1], coord[0], coord[0].length));
+		g2.drawPolyline(spawnBoxPoints[1], spawnBoxPoints[0], spawnBoxPoints[0].length);
+		g2.setColor(Color.WHITE);
+		g2.drawLine(11 * GameData.TILE_WIDTH, 11 * GameData.TILE_HEIGHT, 14 * GameData.TILE_WIDTH,
+				11 * GameData.TILE_HEIGHT);
 	}
 
 }
