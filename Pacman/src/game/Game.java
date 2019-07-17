@@ -188,6 +188,10 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		return score;
 	}
 	
+	public Pacman getPacman() {
+		return pacman;
+	}
+	
 	public ArrayList<Food> getFood(){
 		return food;
 	}
