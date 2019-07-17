@@ -170,6 +170,10 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	}
 	
+	public void increaseScore() {
+		score++;
+	}
+	
 	public int getScore() {
 		return score;
 	}

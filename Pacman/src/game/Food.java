@@ -16,6 +16,7 @@ public class Food {
 	
 	public void consume() {
 		Game.game.getFood().remove(this);
+		Game.game.increaseScore();
 	}
 
 	public void setAsMajorFood(boolean isMajorFood) {
