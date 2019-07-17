@@ -13,13 +13,16 @@ import game.GameData.Directions;
 public class Pacman {
 
 	private Directions direction, prevDirection;
-	private int row, column;
+	private double x, y, row, column;
 	private boolean spriteOpen;
 
 	public Pacman() {
 		prevDirection = Directions.STILL;
 		direction = Directions.STILL;
 		// initSpriteTimer();
+		row = 5;
+		column = 9;
+		center();
 	}
 
 	private void initSpriteTimer() {
@@ -32,24 +35,24 @@ public class Pacman {
 		}).start();
 	}
 
-
 	private boolean atIntersection() {
-		switch(direction) {
+		int row = (int) this.row, column = (int) this.column;
+		switch (direction) {
 		case DOWN:
 		case UP:
-			if(column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
+			if (column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
 				return true;
 			}
-			if(column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+			if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
 				return true;
 			}
 			break;
 		case LEFT:
 		case RIGHT:
-			if(row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
+			if (row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
 				return true;
 			}
-			if(row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+			if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
 				return true;
 			}
 			break;
@@ -59,41 +62,87 @@ public class Pacman {
 		return false;
 	}
 
-	
 	public void move() {
+		if (row - (int) row != 0 || column - (int) column != 0) {
+			intermediaryMove();
+			return;
+		}
+		int row = (int) this.row, column = (int) this.column;
 		switch (direction) {
 		case UP:
 			if (row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
-				row--;
+				this.row -= GameData.PACMAN_VELOCITY;
+				// y -= GameData.PACMAN_VELOCITY;
 			}
 			break;
 		case DOWN:
 			if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
-				row++;
+				this.row += GameData.PACMAN_VELOCITY;
+				// y += GameData.PACMAN_VELOCITY;
 			}
 			break;
 		case LEFT:
 			if (column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
-				column--;
+				this.column -= GameData.PACMAN_VELOCITY;
+				// x -= GameData.PACMAN_VELOCITY;
 			}
 			break;
 		case RIGHT:
 			if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
-				column++;
+				this.column += GameData.PACMAN_VELOCITY;
+				// x += GameData.PACMAN_VELOCITY;
 			}
 			break;
 		case STILL:
 			break;
 		}
-		ArrayList<Food> food = Game.game.getFood();
-		for(int i = 0; i < food.size(); i++) {
-			if(row == food.get(i).getRow() && column == food.get(i).getColumn()) {
-				food.get(i).consume();
+		checkForFood();
+	}
+
+	private void intermediaryMove() {
+		switch (direction) {
+		case UP:
+			row -= GameData.PACMAN_VELOCITY;
+			break;
+		case DOWN:
+			row += GameData.PACMAN_VELOCITY;
+			break;
+		case LEFT:
+			column -= GameData.PACMAN_VELOCITY;
+			break;
+		case RIGHT:
+			column += GameData.PACMAN_VELOCITY;
+			break;
+		case STILL:
+			break;
+		}
+	}
+
+	private void checkForFood() {
+		for (int i = 0; i < Game.game.getFood().size(); i++) {
+			if ((int) row == Game.game.getFood().get(i).getRow() && (int) column == Game.game.getFood().get(i).getColumn()) {
+				Game.game.getFood().get(i).consume();
 			}
 		}
 	}
 
+	private void setRowAndColumn() {
+		row = y / (GameData.TILE_HEIGHT);
+		column = x / (GameData.TILE_WIDTH);
+	}
+
+	private void center() {
+//		y = row * (GameData.TILE_HEIGHT);
+//		x = column * (GameData.TILE_WIDTH);
+		row = (int) row;
+		column = (int) column;
+	}
+
 	public void setDirection(Directions direction) {
+		if (this.direction == direction) {
+			return;
+		}
+		int row = (int) this.row, column = (int) this.column;
 		switch (direction) {
 		case UP:
 			if (row - 1 < 0 || Game.game.getTiles()[row - 1][column].isBarrierTile())
@@ -114,28 +163,36 @@ public class Pacman {
 		case STILL:
 			break;
 		}
+		if ((this.direction == Directions.UP || this.direction == Directions.DOWN)
+				&& (direction == Directions.LEFT || direction == Directions.RIGHT)) {
+			center();
+		} else if ((this.direction == Directions.LEFT || this.direction == Directions.RIGHT)
+				&& (direction == Directions.UP || direction == Directions.DOWN)) {
+			center();
+		}
 		this.direction = direction;
-		System.out.println("Direction set to: " + direction);
 	}
-	
+
 	public int getRow() {
-		return row;
+		return (int) row;
 	}
-	
+
 	public int getColumn() {
-		return column;
+		return (int) column;
 	}
 
 	public void render(Graphics g) {
 		g.setColor(Color.YELLOW);
 		if (!spriteOpen) {
-			g.fillOval(column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE,
-					row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE,
+			g.fillOval((int) (column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE),
+					(int) (row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE),
 					GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
 					GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2));
+//			g.fillOval(x + GameData.PACMAN_SHRINK_SCALE, y + GameData.PACMAN_SHRINK_SCALE, GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
+//					GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2));
 		} else {
-			g.drawImage(GameData.PACMAN_SPRITE, column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT,
-					GameData.TILE_WIDTH, GameData.TILE_HEIGHT, null);
+//			g.drawImage(GameData.PACMAN_SPRITE, column * GameData.TILE_WIDTH, row * GameData.TILE_HEIGHT,
+//					GameData.TILE_WIDTH, GameData.TILE_HEIGHT, null);
 		}
 	}
 

@@ -2,6 +2,7 @@ package game;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
@@ -29,8 +31,9 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	private ArrayList<Food> food;
 	private Timer timer;
 	static ArrayList<int[]> clickedPoints;
-	private int score = 0;
-
+	private int lives, score, maxScore;
+	private long startTime;
+	
 	public Game() {
 		initFrame();
 	}
@@ -48,6 +51,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		clickedPoints = new ArrayList<int[]>();
+		startTime = System.currentTimeMillis();
 	}
 
 	public void initGame() {
@@ -66,20 +70,21 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 				}
 			}
 		}
+		maxScore = food.size();
 		pacman = new Pacman();
 		initGhosts();
+		lives = 3;
+		score = 0;
 		timer = new Timer(GameData.RENDERER_UPDATE_SPEED_MS, this);
 		timer.start();
 	}
-	
+
 	private void initGhosts() {
 		ghosts = new ArrayList<Ghost>();
+		ghosts.add(new Ghost(12, 12, Color.MAGENTA));
 		ghosts.add(new Ghost(11, 11, Color.BLUE));
 		ghosts.add(new Ghost(11, 12, Color.RED));
-		ghosts.add(new Ghost(11, 13, Color.WHITE));
-		ghosts.add(new Ghost(12, 11, Color.ORANGE));
-		ghosts.add(new Ghost(12, 12, Color.PINK));
-		ghosts.add(new Ghost(12, 13, Color.GREEN));
+		ghosts.add(new Ghost(11, 13, Color.GREEN));
 	}
 
 	public void render(Graphics g) {
@@ -87,6 +92,9 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		barrier.render(g);
 		pacman.render(g);
 		ghosts.forEach((ghost) -> ghost.render(g));
+		g.setFont(new Font("Arial", Font.BOLD, 15));
+		g.drawString("Score: " + score, 10, 20);
+		g.drawString("Lives: " + lives, 740, 20);
 	}
 
 	public static void main(String[] args) {
@@ -114,6 +122,10 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		renderer.repaint();
 		pacman.move();
 		ghosts.forEach((ghost) -> ghost.move());
+		if (!barrier.spawnClosed()) {
+			barrier.closeSpawn();
+		}
+		checkForWin();
 	}
 
 	@Override
@@ -184,19 +196,54 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	}
 	
+	public void checkForWin() {
+		if(score == maxScore) {
+			JOptionPane.showMessageDialog(null, "You win!", "Victory!", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+
+	public void reduceLives() {
+		if (lives > 1) {
+			lives--;
+			pacman = new Pacman();
+			barrier.openSpawn();
+			startTime = System.currentTimeMillis();
+			initGhosts();
+			try {
+				Thread.sleep(2000);
+			}catch(Exception e) {
+				e.printStackTrace();
+			}
+		}else {
+			JOptionPane.showMessageDialog(null, "You lost!", "Defeat!", JOptionPane.INFORMATION_MESSAGE);
+		}
+	}
+
 	public void increaseScore() {
 		score++;
 	}
-	
+
 	public int getScore() {
 		return score;
 	}
 	
+	public long getTimePassed() {
+		return System.currentTimeMillis() - startTime;
+	}
+	
+	public Timer getTimer() {
+		return timer;
+	}
+
 	public Pacman getPacman() {
 		return pacman;
 	}
-	
-	public ArrayList<Food> getFood(){
+
+	public ArrayList<Ghost> getGhosts() {
+		return ghosts;
+	}
+
+	public ArrayList<Food> getFood() {
 		return food;
 	}
 

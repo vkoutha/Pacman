@@ -2,65 +2,111 @@ package game;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
 import game.GameData.Directions;
 
 public class Ghost {
 
-	private int row, column;
-	private Color color;
+	private double row, column;
+	private BufferedImage spriteToUse;
 	private Directions direction, prevDirection;
 
 	public Ghost(int row, int column, Color color) {
 		this.row = row;
 		this.column = column;
-		this.color = color;
-		prevDirection = Directions.STILL;
+		prevDirection = Directions.UP;
 		direction = Directions.UP;
 		for (int i = 0; i < Game.game.getFood().size(); i++) {
 			if (Game.game.getFood().get(i).getRow() == row && Game.game.getFood().get(i).getColumn() == column) {
 				Game.game.getFood().get(i).consume();
 			}
 		}
+		setSpriteToUse(color);
+	}
+
+	public void setSpriteToUse(Color color) {
+		if (color == Color.GREEN) {
+			spriteToUse = GameData.GREEN_GHOST_SPRITE;
+		} else if (color == Color.BLUE) {
+			spriteToUse = GameData.BLUE_GHOST_SPRITE;
+		} else if (color == Color.MAGENTA) {
+			spriteToUse = GameData.PURPLE_GHOST_SPRITE;
+		} else if (color == Color.RED) {
+			spriteToUse = GameData.RED_GHOST_SPRITE;
+		}
 	}
 
 	public void move() {
-		switch (direction) {
-		case UP:
-			if (row - 1 >= 0) {
-				row--;
-			}
-			break;
-		case DOWN:
-			if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
-				row++;
-			}
-			break;
-		case LEFT:
-			if (column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
-				column--;
-			}
-			break;
-		case RIGHT:
-			if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
-				column++;
-			}
-			break;
-		case STILL:
-			break;
+		if(inSpawnArea() && Game.game.getTimePassed() > 2000) {
+			row = 10;
+			column = 12;
+		}
+		if (row - (int) row != 0 || column - (int) column != 0) {
+			intermediaryMove();
+			return;
 		}
 		if (atIntersection()) {
 			prevDirection = direction;
 			switchIntersections();
 		}
+		if (hitPacman()) {
+			Game.game.reduceLives();
+			return;
+		}
+		int row = (int) this.row, column = (int) this.column;
+		switch (direction) {
+		case UP:
+			if (row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
+				this.row -= GameData.PACMAN_VELOCITY;
+			}
+			break;
+		case DOWN:
+			if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+				this.row += GameData.PACMAN_VELOCITY;
+			}
+			break;
+		case LEFT:
+			if (column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
+				this.column -= GameData.PACMAN_VELOCITY;
+			}
+			break;
+		case RIGHT:
+			if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+				this.column += GameData.PACMAN_VELOCITY;
+			}
+			break;
+		case STILL:
+			break;
+		}
 	}
-	
+
+	private void intermediaryMove() {
+		switch (direction) {
+		case UP:
+			row -= GameData.PACMAN_VELOCITY;
+			break;
+		case DOWN:
+			row += GameData.PACMAN_VELOCITY;
+			break;
+		case LEFT:
+			column -= GameData.PACMAN_VELOCITY;
+			break;
+		case RIGHT:
+			column += GameData.PACMAN_VELOCITY;
+			break;
+		case STILL:
+			break;
+		}
+	}
+
 	private void switchIntersections() {
 		ArrayList<Directions> availableDirections = getAvailableDirections();
 		ArrayList<Double> distances = new ArrayList<Double>();
-		for(int i = 0; i < availableDirections.size(); i++) {
-			switch(availableDirections.get(i)) {
+		int row = (int) this.row, column = (int) this.column;
+		for (int i = 0; i < availableDirections.size(); i++) {
+			switch (availableDirections.get(i)) {
 			case UP:
 				distances.add(getDistanceToPlayer(row - 1, column));
 				break;
@@ -79,58 +125,85 @@ public class Ghost {
 		}
 		int lowestIndex = -1;
 		double lowestDist = 69420;
-		for(int i = 0; i < distances.size(); i++) {
-			if(distances.get(i) < lowestDist) {
+		for (int i = 0; i < distances.size(); i++) {
+			if (distances.get(i) < lowestDist) {
 				lowestDist = distances.get(i);
 				lowestIndex = i;
 			}
 		}
 		double chance = Math.random() * 100;
-		if(chance <= 30) {
+		if (chance <= 70) {
 			direction = availableDirections.get(lowestIndex);
-		}else {
+		} else {
 			direction = availableDirections.get(getRandomNum(availableDirections.size(), -1));
 		}
 	}
-	
+
 	private ArrayList<Directions> getAvailableDirections() {
 		ArrayList<Directions> availableDirections = new ArrayList<Directions>();
-		if(row - 1 > 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
+		int row = (int) this.row, column = (int) this.column;
+		if (row - 1 > 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
 			availableDirections.add(Directions.UP);
 		}
-		if(row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+		if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
 			availableDirections.add(Directions.DOWN);
 		}
-		if(column - 1 > 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
+		if (column - 1 > 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
 			availableDirections.add(Directions.LEFT);
 		}
-		if(column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+		if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
 			availableDirections.add(Directions.RIGHT);
 		}
-		for(int i = 0; i < availableDirections.size(); i++) {
-			if(availableDirections.get(i) == prevDirection) {
+		for (int i = 0; i < availableDirections.size(); i++) {
+			if (availableDirections.get(i) == prevDirection) {
 				availableDirections.remove(i);
 			}
 		}
 		return availableDirections;
 	}
-	
+
 	private int getRandomNum(int size, int indexToExclude) {
 		int randomNum = -69;
 		do {
-			System.out.println(size);
 			randomNum = (int) Math.random() * size;
-		}while (randomNum == indexToExclude);
-		 return randomNum;
+		} while (randomNum == indexToExclude);
+		return randomNum;
 	}
-	
+
+	public int getRow() {
+		return (int) row;
+	}
+
+	public int getColumn() {
+		return (int) column;
+	}
+
 	private double getDistanceToPlayer(int row, int column) {
 		int base = Math.abs(Game.game.getPacman().getColumn() - column);
 		int height = Math.abs(Game.game.getPacman().getRow() - row);
 		return Math.hypot(base, height);
 	}
 
+	private boolean hitPacman() {
+		if ((int) row == Game.game.getPacman().getRow() && (int) column == Game.game.getPacman().getColumn()) {
+			return true;
+		}
+		return false;
+	}
+	
+	private boolean inSpawnArea() {
+		int[][] possibleGhostSpawnPoints = new int[][] { { 11, 11 }, { 11, 12 }, { 11, 13 }, { 12, 12 } };
+		for (int j = 0; j < possibleGhostSpawnPoints.length; j++) {
+			if (row == possibleGhostSpawnPoints[j][0]
+					&& column == possibleGhostSpawnPoints[j][1]) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private boolean atIntersection() {
+		int row = (int) this.row, column = (int) this.column;
 		switch (direction) {
 		case DOWN:
 		case UP:
@@ -157,11 +230,15 @@ public class Ghost {
 	}
 
 	public void render(Graphics g) {
-		g.setColor(color);
-		g.fillOval(column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE,
-				row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE,
+//		g.setColor(color);
+//		g.fillOval(column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE,
+//				row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE,
+//				GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
+//				GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2));
+		g.drawImage(spriteToUse, (int) (column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE),
+				(int) (row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE),
 				GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
-				GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2));
+				GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2), null);
 	}
 
 }

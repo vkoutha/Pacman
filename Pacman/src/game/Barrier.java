@@ -10,12 +10,14 @@ public class Barrier {
 
 	private ArrayList<int[]> barrierPoints;
 	private ArrayList<int[][]> polygonBarrierPoints;
-	private int[][] spawnBoxPoints;
+	private int[][] spawnBoxPoints, possibleGhostSpawnPoints;
+	private boolean spawnClosed;
 	private Tile[][] tiles;
 
 	public Barrier(Tile[][] tiles) {
 		barrierPoints = new ArrayList<int[]>();
 		polygonBarrierPoints = new ArrayList<int[][]>();
+		possibleGhostSpawnPoints = new int[][] { { 11, 11 }, { 11, 12 }, { 11, 13 }, { 12, 12 } };
 		this.tiles = tiles;
 		initBarriers();
 	}
@@ -117,12 +119,40 @@ public class Barrier {
 				{ 21, 13 }, { 22, 15 }, { 22, 16 }, { 23, 16 }, { 23, 15 }, });
 		barriers.add(new int[][] { { 11, 8 }, { 11, 9 }, { 11, 10 }, { 12, 10 }, { 12, 9 }, { 12, 8 }, { 13, 8 },
 				{ 13, 9 }, { 13, 10 }, { 13, 14 }, { 13, 15 }, { 13, 16 }, { 12, 16 }, { 12, 15 }, { 12, 14 },
-				{ 11, 14 }, { 11, 15 }, { 11, 16 }, { 13, 11 }, { 13, 12 }, { 13, 13 }});
+				{ 11, 14 }, { 11, 15 }, { 11, 16 }, { 13, 11 }, { 13, 12 }, { 13, 13 }, { 12, 11 }, { 12, 13 } });
 		barriers.forEach((polygonBarrier) -> {
 			for (int i = 0; i < polygonBarrier.length; i++) {
 				tiles[polygonBarrier[i][0]][polygonBarrier[i][1]].setAsBarrierTile(true);
 			}
 		});
+	}
+	
+	public void openSpawn() {
+		for (int i = 0; i < possibleGhostSpawnPoints.length; i++) {
+			Game.game.getTiles()[possibleGhostSpawnPoints[i][0]][possibleGhostSpawnPoints[i][1]].setAsBarrierTile(false);
+		}
+		spawnClosed = false;
+	}
+
+	public void closeSpawn() {
+		ArrayList<Ghost> ghosts = Game.game.getGhosts();
+		for (int i = 0; i < ghosts.size(); i++) {
+			for (int j = 0; j < possibleGhostSpawnPoints.length; j++) {
+				if (ghosts.get(i).getRow() == possibleGhostSpawnPoints[j][0]
+						&& ghosts.get(i).getColumn() == possibleGhostSpawnPoints[j][1]) {
+					return;
+				}
+			}
+		}
+		for (int i = 0; i < possibleGhostSpawnPoints.length; i++) {
+			Game.game.getTiles()[possibleGhostSpawnPoints[i][0]][possibleGhostSpawnPoints[i][1]].setAsBarrierTile(true);
+		}
+		System.out.println("CLOSED SPAWN!");
+		spawnClosed = true;
+	}
+
+	public boolean spawnClosed() {
+		return spawnClosed;
 	}
 
 	public int[] convertToXAndY(int rowStart, int colStart, int height, int width, boolean usingWidthHeight) {
