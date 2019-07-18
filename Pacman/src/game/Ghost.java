@@ -9,11 +9,17 @@ import game.GameData.Directions;
 
 public class Ghost {
 
-	private double row, column;
+	private double ogRow, ogColumn, row, column;
+	private boolean isEatable, inTimeout;
+	private Thread deathTimeoutThread;
 	private BufferedImage spriteToUse;
 	private Directions direction, prevDirection;
+	int[][] possibleGhostSpawnPoints = new int[][] { { 11, 11 }, { 11, 12 }, { 11, 13 }, { 12, 12 } };
+
 
 	public Ghost(int row, int column, Color color) {
+		ogRow = row;
+		ogColumn = column;
 		this.row = row;
 		this.column = column;
 		prevDirection = Directions.UP;
@@ -24,6 +30,22 @@ public class Ghost {
 			}
 		}
 		setSpriteToUse(color);
+		initTimeoutThread();
+	}
+
+	private void initTimeoutThread() {
+		deathTimeoutThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				inTimeout = true;
+				long startTime = System.currentTimeMillis();
+				while (startTime - System.currentTimeMillis() < GameData.DEAD_GHOST_TIMEOUT_TIME_MS)
+					;
+				inTimeout = false;
+				Game.game.getBarrier().openSpawn();
+			}
+		});
 	}
 
 	public void setSpriteToUse(Color color) {
@@ -38,8 +60,15 @@ public class Ghost {
 		}
 	}
 
+	public void setAsEatable(boolean isEatable) {
+		this.isEatable = isEatable;
+	}
+
 	public void move() {
-		if(inSpawnArea() && Game.game.getTimePassed() > 2000) {
+		if (inTimeout) {
+			return;
+		}
+		if (inSpawnArea() && Game.game.getTimePassed() > 2000) {
 			row = 10;
 			column = 12;
 		}
@@ -52,7 +81,13 @@ public class Ghost {
 			switchIntersections();
 		}
 		if (hitPacman()) {
-			Game.game.reduceLives();
+			if (!isEatable()) {
+				Game.game.reduceLives();
+			} else {
+				row = ogRow;
+				column = ogColumn;
+				startTimeoutTimer();
+			}
 			return;
 		}
 		int row = (int) this.row, column = (int) this.column;
@@ -139,6 +174,13 @@ public class Ghost {
 		}
 	}
 
+	private void startTimeoutTimer() {
+		if (deathTimeoutThread.isAlive()) {
+			initTimeoutThread();
+		}
+		deathTimeoutThread.start();
+	}
+
 	private ArrayList<Directions> getAvailableDirections() {
 		ArrayList<Directions> availableDirections = new ArrayList<Directions>();
 		int row = (int) this.row, column = (int) this.column;
@@ -190,12 +232,10 @@ public class Ghost {
 		}
 		return false;
 	}
-	
+
 	private boolean inSpawnArea() {
-		int[][] possibleGhostSpawnPoints = new int[][] { { 11, 11 }, { 11, 12 }, { 11, 13 }, { 12, 12 } };
 		for (int j = 0; j < possibleGhostSpawnPoints.length; j++) {
-			if (row == possibleGhostSpawnPoints[j][0]
-					&& column == possibleGhostSpawnPoints[j][1]) {
+			if (row == possibleGhostSpawnPoints[j][0] && column == possibleGhostSpawnPoints[j][1]) {
 				return true;
 			}
 		}
@@ -229,16 +269,23 @@ public class Ghost {
 		return false;
 	}
 
+	public boolean isEatable() {
+		return isEatable;
+	}
+
 	public void render(Graphics g) {
-//		g.setColor(color);
-//		g.fillOval(column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE,
-//				row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE,
-//				GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
-//				GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2));
-		g.drawImage(spriteToUse, (int) (column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE),
-				(int) (row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE),
-				GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
-				GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2), null);
+		if (!isEatable) {
+			g.drawImage(spriteToUse, (int) (column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE),
+					(int) (row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE),
+					GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
+					GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2), null);
+		} else {
+			g.drawImage(GameData.EATABLE_GHOST_SPRITE,
+					(int) (column * GameData.TILE_WIDTH + GameData.PACMAN_SHRINK_SCALE),
+					(int) (row * GameData.TILE_HEIGHT + GameData.PACMAN_SHRINK_SCALE),
+					GameData.TILE_WIDTH - (GameData.PACMAN_SHRINK_SCALE * 2),
+					GameData.TILE_HEIGHT - (GameData.PACMAN_SHRINK_SCALE * 2), null);
+		}
 	}
 
 }

@@ -29,11 +29,12 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	private ArrayList<Ghost> ghosts;
 	private Tile[][] tiles;
 	private ArrayList<Food> food;
+	private Directions scheduledDirection;
 	private Timer timer;
 	static ArrayList<int[]> clickedPoints;
 	private int lives, score, maxScore;
 	private long startTime;
-	
+
 	public Game() {
 		initFrame();
 	}
@@ -70,6 +71,7 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 				}
 			}
 		}
+		initMajorFoods();
 		maxScore = food.size();
 		pacman = new Pacman();
 		initGhosts();
@@ -77,6 +79,12 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		score = 0;
 		timer = new Timer(GameData.RENDERER_UPDATE_SPEED_MS, this);
 		timer.start();
+	}
+
+	private void initMajorFoods() {
+		for (int i = 0; i < 6; i++) {
+			food.get((int) (Math.random() * food.size())).setAsMajorFood(true);
+		}
 	}
 
 	private void initGhosts() {
@@ -125,6 +133,9 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		if (!barrier.spawnClosed()) {
 			barrier.closeSpawn();
 		}
+		if (scheduledDirection != null) {
+			pacman.setDirection(scheduledDirection);
+		}
 		checkForWin();
 	}
 
@@ -140,18 +151,22 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 		switch (e.getKeyCode()) {
 		case KeyEvent.VK_W:
 		case KeyEvent.VK_UP:
+			scheduledDirection = Directions.UP;
 			pacman.setDirection(Directions.UP);
 			break;
 		case KeyEvent.VK_S:
 		case KeyEvent.VK_DOWN:
+			scheduledDirection = Directions.DOWN;
 			pacman.setDirection(Directions.DOWN);
 			break;
 		case KeyEvent.VK_D:
 		case KeyEvent.VK_RIGHT:
+			scheduledDirection = Directions.RIGHT;
 			pacman.setDirection(Directions.RIGHT);
 			break;
 		case KeyEvent.VK_A:
 		case KeyEvent.VK_LEFT:
+			scheduledDirection = Directions.LEFT;
 			pacman.setDirection(Directions.LEFT);
 			break;
 		}
@@ -196,26 +211,49 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	}
 	
+	public void setScheduledDirection(Directions direction) {
+		scheduledDirection = direction;
+	}
+
+	public void setGhostsAsEatable(boolean eatable) {
+		ghosts.forEach((ghost) -> ghost.setAsEatable(eatable));
+		startEatableTimer();
+	}
+
+	public void startEatableTimer() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				// TODO Auto-generated method stub
+				long startTime = System.currentTimeMillis();
+				while (System.currentTimeMillis() - startTime <= GameData.TIME_TO_BE_EATABLE_GHOST_MS)
+					;
+				setGhostsAsEatable(false);
+			}
+		}).start();
+	}
+
 	public void checkForWin() {
-		if(score == maxScore) {
+		if (score == maxScore) {
 			JOptionPane.showMessageDialog(null, "You win!", "Victory!", JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
 	public void reduceLives() {
-		if (lives > 1) {
-			lives--;
+		lives--;
+		if (lives != 0) {
 			pacman = new Pacman();
 			barrier.openSpawn();
-			startTime = System.currentTimeMillis();
 			initGhosts();
+			startTime = System.currentTimeMillis();
 			try {
-				Thread.sleep(2000);
-			}catch(Exception e) {
+		//		Thread.sleep(2000);
+			} catch (Exception e) {
 				e.printStackTrace();
 			}
-		}else {
-			JOptionPane.showMessageDialog(null, "You lost!", "Defeat!", JOptionPane.INFORMATION_MESSAGE);
+		} else {
+			// JOptionPane.showMessageDialog(null, "You lost!", "Defeat!",
+			// JOptionPane.INFORMATION_MESSAGE);
 		}
 	}
 
@@ -226,11 +264,11 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 	public int getScore() {
 		return score;
 	}
-	
+
 	public long getTimePassed() {
 		return System.currentTimeMillis() - startTime;
 	}
-	
+
 	public Timer getTimer() {
 		return timer;
 	}
@@ -245,6 +283,10 @@ public class Game implements ActionListener, KeyListener, MouseListener {
 
 	public ArrayList<Food> getFood() {
 		return food;
+	}
+
+	public Barrier getBarrier() {
+		return barrier;
 	}
 
 	public Tile[][] getTiles() {

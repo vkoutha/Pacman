@@ -35,33 +35,6 @@ public class Pacman {
 		}).start();
 	}
 
-	private boolean atIntersection() {
-		int row = (int) this.row, column = (int) this.column;
-		switch (direction) {
-		case DOWN:
-		case UP:
-			if (column - 1 >= 0 && !Game.game.getTiles()[row][column - 1].isBarrierTile()) {
-				return true;
-			}
-			if (column + 1 < GameData.GRID_COLUMNS && !Game.game.getTiles()[row][column + 1].isBarrierTile()) {
-				return true;
-			}
-			break;
-		case LEFT:
-		case RIGHT:
-			if (row - 1 >= 0 && !Game.game.getTiles()[row - 1][column].isBarrierTile()) {
-				return true;
-			}
-			if (row + 1 < GameData.GRID_ROWS && !Game.game.getTiles()[row + 1][column].isBarrierTile()) {
-				return true;
-			}
-			break;
-		case STILL:
-			return true;
-		}
-		return false;
-	}
-
 	public void move() {
 		if (row - (int) row != 0 || column - (int) column != 0) {
 			intermediaryMove();
@@ -120,15 +93,11 @@ public class Pacman {
 
 	private void checkForFood() {
 		for (int i = 0; i < Game.game.getFood().size(); i++) {
-			if ((int) row == Game.game.getFood().get(i).getRow() && (int) column == Game.game.getFood().get(i).getColumn()) {
+			if ((int) row == Game.game.getFood().get(i).getRow()
+					&& (int) column == Game.game.getFood().get(i).getColumn()) {
 				Game.game.getFood().get(i).consume();
 			}
 		}
-	}
-
-	private void setRowAndColumn() {
-		row = y / (GameData.TILE_HEIGHT);
-		column = x / (GameData.TILE_WIDTH);
 	}
 
 	private void center() {
@@ -140,25 +109,34 @@ public class Pacman {
 
 	public void setDirection(Directions direction) {
 		if (this.direction == direction) {
+			Game.game.setScheduledDirection(this.direction);
 			return;
 		}
 		int row = (int) this.row, column = (int) this.column;
 		switch (direction) {
 		case UP:
-			if (row - 1 < 0 || Game.game.getTiles()[row - 1][column].isBarrierTile())
+			if (row - 1 < 0 || Game.game.getTiles()[row - 1][column].isBarrierTile()) {
+				Game.game.setScheduledDirection(this.direction);
 				return;
+			}
 			break;
 		case DOWN:
-			if (row + 1 >= GameData.GRID_ROWS || Game.game.getTiles()[row + 1][column].isBarrierTile())
+			if (row + 1 >= GameData.GRID_ROWS || Game.game.getTiles()[row + 1][column].isBarrierTile()) {
+				Game.game.setScheduledDirection(this.direction);
 				return;
+			}
 			break;
 		case LEFT:
-			if (column - 1 < 0 || Game.game.getTiles()[row][column - 1].isBarrierTile())
+			if (column - 1 < 0 || Game.game.getTiles()[row][column - 1].isBarrierTile()) {
+				Game.game.setScheduledDirection(this.direction);
 				return;
+			}
 			break;
 		case RIGHT:
-			if (column + 1 >= GameData.GRID_COLUMNS || Game.game.getTiles()[row][column + 1].isBarrierTile())
+			if (column + 1 >= GameData.GRID_COLUMNS || Game.game.getTiles()[row][column + 1].isBarrierTile()) {
+				Game.game.setScheduledDirection(this.direction);
 				return;
+			}
 			break;
 		case STILL:
 			break;
